@@ -3,27 +3,67 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+
   build: {
-    // Increase chunk warning limit since sequences are loaded on demand
-    chunkSizeWarningLimit: 600,
+    target: 'es2020',
+
+    minify: 'esbuild',
+
+    sourcemap: false,
+
+    chunkSizeWarningLimit: 1200,
+
+    cssCodeSplit: true,
+
     rollupOptions: {
       output: {
-        // Split vendor chunks for better caching
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'animation-vendor': ['framer-motion', 'gsap'],
-          'lenis': ['@studio-freight/lenis'],
+        manualChunks(id) {
+          // React bundle
+          if (
+            id.includes('react') ||
+            id.includes('react-dom')
+          ) {
+            return 'react-vendor'
+          }
+
+          // Animation libraries
+          if (
+            id.includes('framer-motion') ||
+            id.includes('gsap')
+          ) {
+            return 'animation-vendor'
+          }
+
+          // Lenis
+          if (id.includes('@studio-freight/lenis')) {
+            return 'lenis'
+          }
         },
+
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
       },
     },
-    // Enable source maps for production debugging if needed
-    sourcemap: false,
-    // Minify with esbuild (default, fast)
-    minify: 'esbuild',
-    target: 'es2020',
   },
-  // Pre-bundle deps for faster dev startup
+
+  server: {
+    host: true,
+    port: 5173,
+  },
+
+  preview: {
+    host: true,
+    port: 4173,
+  },
+
   optimizeDeps: {
-    include: ['react', 'react-dom', 'framer-motion', 'gsap', '@studio-freight/lenis'],
+    include: [
+      'react',
+      'react-dom',
+      'framer-motion',
+      'gsap',
+      '@studio-freight/lenis',
+    ],
   },
 })
