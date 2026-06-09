@@ -7,7 +7,8 @@ export default defineConfig({
   build: {
     target: 'es2020',
 
-    minify: 'esbuild',
+    // Remove custom minifier
+    // Vite handles it automatically
 
     sourcemap: false,
 
@@ -18,7 +19,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // React bundle
+          // React
           if (
             id.includes('react') ||
             id.includes('react-dom')
